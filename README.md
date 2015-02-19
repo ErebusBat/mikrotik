@@ -4,7 +4,7 @@ Golang Bandwidth monitoring utility for Mikrotik RouterOS Devices
 This library reads [RouterOS](http://routerboard.com/) devices (primarily Mikrotik routerboads).
 Currently only SNMP and the functions to support bandwidth monitoring are supported.
 
-This library is built using [gosnmp](https://github.com/alouca/gosnmp).  However it should be abstracted enough that if 
+This library is built using [gosnmp](https://github.com/alouca/gosnmp).  However it should be abstracted enough that if
 one were so inclined you could implement a [raw API](http://wiki.mikrotik.com/wiki/Manual:API) client.
 
 Currently there only exists the `bandwidth` tool (See [bandwidth.go](https://github.com/ErebusBat/mikrotik/blob/master/cmd/bandwidth.go)) which consumes the library and reports interface statistics at a given interval.
@@ -18,12 +18,16 @@ go get -u -v github.com/ErebusBat/mikrotik/
 go build cmd/*.go
 ```
 
+## Download ##
+
+You can download pre-built binaries from the [v0.1 Release](https://github.com/ErebusBat/mikrotik/releases/tag/v0.1) page.
+
 ## Usage ##
 
 The tool tries to have intelligent defaults, so if your SNMP community is `public` and the interface name you want to monitor is the standard `ether1` then you just need to specify a host:
 
 ```
-$ ./bandwidth -h 192.168.0.1 
+$ ./bandwidth -h 192.168.0.1
 
 # Help
 $ ./bandwidth --help
