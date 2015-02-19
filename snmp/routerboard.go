@@ -5,7 +5,16 @@ import (
 	"time"
 
 	. "github.com/ErebusBat/mikrotik_util/core"
+	"github.com/alouca/gosnmp"
 )
+
+type SnmpRouterboard interface {
+	Routerboard
+
+	GetOidStringValCached(oid string) (val string, err error)
+	SnmpGetPDU(oid string) (gosnmp.SnmpPDU, error)
+	SnmpGetPDUList(oid string) ([]gosnmp.SnmpPDU, error)
+}
 
 // http://wiki.mikrotik.com/wiki/Munin_Monitoring#mikrotikifrate
 type MikrotikSnmp struct {
@@ -20,15 +29,6 @@ type MikrotikSnmp struct {
 }
 
 func (rb *MikrotikSnmp) Routerboard() Routerboard {
-	return rb
-}
-
-func NewRouterBoardSnmp(host, community string) Routerboard {
-	rb := &MikrotikSnmp{
-		Host:      host,
-		Community: community,
-	}
-	rb.Initialize()
 	return rb
 }
 

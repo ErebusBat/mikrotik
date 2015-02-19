@@ -1,10 +1,6 @@
 package core
 
-import (
-	"time"
-
-	"github.com/alouca/gosnmp"
-)
+import "time"
 
 type Routerboarder interface {
 	Routerboard() Routerboard
@@ -34,12 +30,4 @@ type Routerboard interface {
 	// Interface Methods
 	GetInterfaces() (ifaces []RbInterface, err error)
 	FindInterfaceByName(ifName string) (iface RbInterface, err error)
-}
-
-type SnmpRouterboard interface {
-	Routerboard
-
-	GetOidStringValCached(oid string) (val string, err error)
-	SnmpGetPDU(oid string) (gosnmp.SnmpPDU, error)
-	SnmpGetPDUList(oid string) ([]gosnmp.SnmpPDU, error)
 }
