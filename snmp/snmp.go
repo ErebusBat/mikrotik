@@ -1,16 +1,8 @@
-package mikrotik_util
+package snmp
 
-import "github.com/alouca/gosnmp"
-
-// http://wiki.mikrotik.com/wiki/Munin_Monitoring#mikrotikifrate
-type MikrotikSnmp struct {
-	Host      string
-	Community string
-
-	// Caches
-	cacheInterfaces []MtInterface
-	cacheStrings    map[string]string
-}
+import (
+	"github.com/alouca/gosnmp"
+)
 
 const (
 	SnmpOidDescription = ".1.3.6.1.2.1.1.1.0"
@@ -24,17 +16,6 @@ const (
 var (
 	zeroValPdu = gosnmp.SnmpPDU{}
 )
-
-// Setups up object to be ready to works (caches, etc)
-func (rb *MikrotikSnmp) Initialize() {
-	rb.FlushCaches()
-}
-
-// Removes any cached information
-func (rb *MikrotikSnmp) FlushCaches() {
-	rb.cacheInterfaces = make([]MtInterface, 0, 5)
-	rb.cacheStrings = make(map[string]string, 0)
-}
 
 // Looks up the given OID value, casts it to a string and caches it.  Returns
 // cached value early if it exists

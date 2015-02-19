@@ -1,92 +1,10 @@
-package mikrotik_util
+package snmp
 
 import (
-	"fmt"
 	"time"
+
+	. "github.com/ErebusBat/mikrotik_util/core"
 )
-
-// Single point in time sample of the interface state
-type InterfaceBandwidthSample struct {
-	Interface MtInterface
-	IsRx      bool
-	Date      time.Time
-	ByteCount int64
-}
-
-// Calculates the delta between two samples
-// The older sample should be the receiver and
-// the newer sample should be the parameter
-func (first InterfaceBandwidthSample) Delta(second InterfaceBandwidthSample) (sample InterfaceBandwidthSampleDelta) {
-	if first.Interface.Name != second.Interface.Name || first.IsRx != second.IsRx {
-		return sample
-	}
-	sample.Interface = first.Interface
-	sample.IsRx = first.IsRx
-	sample.Duration = second.Date.Sub(first.Date)
-	sample.Delta = second.ByteCount - first.ByteCount
-	sample.Bits = sample.Delta * 8
-
-	return sample
-}
-
-// InterfaceBandwidthSampleDelta is a comparison of a rx OR tx sample over time
-type InterfaceBandwidthSampleDelta struct {
-	Interface MtInterface
-	IsRx      bool
-	Duration  time.Duration
-	Delta     int64
-	Bits      int64
-}
-
-// Returns a humanized string representing the bits, i.e. 123.4 Mbps
-func (d InterfaceBandwidthSampleDelta) BitsString() string {
-	var bits float64 = float64(d.Bits) / d.Duration.Seconds()
-	template := "%.1f"
-
-	if bits >= 1000000000 {
-		bits = bits / float64(1000000000)
-		template += " Gbps"
-	} else if bits >= 1000000 {
-		bits = bits / float64(1000000)
-		template += " Mbps"
-	} else if bits >= 1000 {
-		bits = bits / float64(1000)
-		template += " Kbps"
-	}
-	return fmt.Sprintf(template, bits)
-}
-
-// Returns a string representing the sample, i.e. RB450G-ether1 tx/rx 541.8 Kbps/595.3 Kbps
-func (d InterfaceBandwidthSampleDelta) String() string {
-	var rxtx string = "tx"
-	if d.IsRx {
-		rxtx = "rx"
-	}
-	return fmt.Sprintf("%s-%s %10s",
-		d.Interface.FullName(),
-		rxtx,
-		d.BitsString(),
-	)
-}
-
-// InterfaceRxTxSample is a 'complete' (both rx and tx) picture of interface bandwidth
-type InterfaceRxTxSample [2]InterfaceBandwidthSampleDelta
-
-// Returns the RX Sample
-func (s InterfaceRxTxSample) RX() InterfaceBandwidthSampleDelta {
-	if !s[0].IsRx {
-		panic("Non RX interface in RX Slot")
-	}
-	return s[0]
-}
-
-// Returns the TX Sample
-func (s InterfaceRxTxSample) TX() InterfaceBandwidthSampleDelta {
-	if s[1].IsRx {
-		panic("Non TX interface in TX Slot")
-	}
-	return s[1]
-}
 
 // Samples bandwidth for the given duration and returns the delta.
 func (iface MtInterface) SampleBandwidth(isRx bool, sampleSize time.Duration) (InterfaceBandwidthSampleDelta, error) {
@@ -171,7 +89,8 @@ func (iface MtInterface) MonitorBandwidthRxTx(isRx bool, freqClock chan time.Tim
 		// and post it to the channel
 		if sampleCount >= 2 {
 			prevSample := samples[last_idx]
-			results <- prevSample.Delta(sample)
+			delta := prevSample.Delta(sample)
+			results <- delta
 		}
 
 		// Block/Check that the channel is still open, if not then exit
@@ -183,6 +102,7 @@ func (iface MtInterface) MonitorBandwidthRxTx(isRx bool, freqClock chan time.Tim
 
 // Samples Interface for bytes RX or bytes TX depending on flag
 func (iff MtInterface) SampleBytes(isRx bool) (sample InterfaceBandwidthSample, err error) {
+	// log.Printf("SampleBytes %t %#v\n", isRx, iff.FullName())
 	sample.Interface = iff
 	sample.IsRx = isRx
 	var bytes int64
@@ -200,5 +120,6 @@ func (iff MtInterface) SampleBytes(isRx bool) (sample InterfaceBandwidthSample, 
 	}
 	sample.ByteCount = bytes
 
+	// log.Printf("  Got: %#v\n", sample)
 	return sample, nil
 }

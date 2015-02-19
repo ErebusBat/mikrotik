@@ -1,4 +1,4 @@
-package mikrotik_util
+package snmp
 
 import (
 	"log"

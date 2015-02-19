@@ -6,7 +6,8 @@ import (
 	"log"
 	"time"
 
-	. "github.com/ErebusBat/mikrotik_util"
+	. "github.com/ErebusBat/mikrotik_util/core"
+	. "github.com/ErebusBat/mikrotik_util/snmp"
 )
 
 // Custom type/consts to make our action routing code easier to read
@@ -20,7 +21,7 @@ const (
 
 // Configuration Struct
 type AppConfig struct {
-	RouterBoard    MikrotikSnmp
+	Routerboard    Routerboard
 	SampleInterval time.Duration
 	InterfaceName  string
 
@@ -40,7 +41,7 @@ func main() {
 		iface := cfg.mustFindInterface()
 		actionMonitorBandwidth(iface, cfg.SampleInterval)
 	case printInterfaces:
-		actionPrintKnownInterfaces(cfg.RouterBoard)
+		actionPrintKnownInterfaces(cfg.Routerboard)
 	default:
 		log.Fatalf("Unknown action %#v?!?! ", cfg.action)
 	}
@@ -51,7 +52,7 @@ func main() {
 ////////////////////////////////////////////////////////////////////////////////
 
 // Prints all known interfaces to the console
-func actionPrintKnownInterfaces(rb MikrotikSnmp) {
+func actionPrintKnownInterfaces(rb Routerboard) {
 	log.Println("Interfaces")
 	ifaces, err := rb.GetInterfaces()
 	if err != nil {
@@ -69,10 +70,14 @@ func actionPrintKnownInterfaces(rb MikrotikSnmp) {
 }
 
 // action: monitors the bandwidth of given interface and prints to console
-func actionMonitorBandwidth(iface MtInterface, sampleInterval time.Duration) {
+func actionMonitorBandwidth(iface RbInterface, sampleInterval time.Duration) {
 	log.Printf("Sampling bandwidth every %s\n", sampleInterval)
 	bandwidthSample := iface.MonitorBandwidth(sampleInterval)
 	for sample := range bandwidthSample {
+		if &sample == nil {
+			return
+		}
+		// log.Printf("%#v\n\n", sample)
 		log.Printf("%s tx/rx %s/%s",
 			iface.FullName(),
 			sample.TX().BitsString(),
@@ -87,10 +92,13 @@ func actionMonitorBandwidth(iface MtInterface, sampleInterval time.Duration) {
 
 // Reads the configuration, inits objects, and returns the AppConfig
 func parseConfig() *AppConfig {
+	var (
+		host, community string
+	)
 	cfg := new(AppConfig)
 	cfg.action = monitorBandwidth
-	flag.StringVar(&cfg.RouterBoard.Community, "c", "public", "SNMP Community Name")
-	flag.StringVar(&cfg.RouterBoard.Host, "h", "127.0.0.7", "Mikrotik IP")
+	flag.StringVar(&host, "h", "127.0.0.7", "Mikrotik IP")
+	flag.StringVar(&community, "c", "public", "SNMP Community Name")
 
 	flag.DurationVar(&cfg.SampleInterval, "s", time.Second, "Sample Interval")
 	flag.StringVar(&cfg.InterfaceName, "i", "ether1", "Mikrotik Interface Name")
@@ -98,10 +106,10 @@ func parseConfig() *AppConfig {
 	// Non operational flags
 	flag.BoolVar(&cfg.dumpInterfaces, "list", false, "Lists all known interfaces and exits")
 	flag.Parse()
-	cfg.RouterBoard.Initialize()
+	cfg.Routerboard = NewRouterBoardSnmp(host, community)
 
 	// Print RB banner (so it is on all output)
-	banner, err := cfg.RouterBoard.GetSystemBanner()
+	banner, err := cfg.Routerboard.GetSystemBanner()
 	if err != nil {
 		log.Fatalf("ERROR: %v", err)
 	}
@@ -118,7 +126,7 @@ func parseConfig() *AppConfig {
 
 // helper: returns system name or logs fatal error
 func (cfg *AppConfig) mustGetSystemName() string {
-	sysName, err := cfg.RouterBoard.GetSystemName()
+	sysName, err := cfg.Routerboard.GetSystemName()
 	if err != nil {
 		log.Fatalf("ERROR: %v", err)
 	}
@@ -126,10 +134,10 @@ func (cfg *AppConfig) mustGetSystemName() string {
 }
 
 // helper: returns interface or logs fatal error
-func (cfg *AppConfig) mustFindInterface() MtInterface {
+func (cfg *AppConfig) mustFindInterface() RbInterface {
 	// Call sysName first so we exit on that
 	sysName := cfg.mustGetSystemName()
-	iface, err := cfg.RouterBoard.FindInterfaceByName(cfg.InterfaceName)
+	iface, err := cfg.Routerboard.FindInterfaceByName(cfg.InterfaceName)
 	if err != nil {
 		log.Fatalf("ERROR: %v (maybe try --list)", err)
 	}
