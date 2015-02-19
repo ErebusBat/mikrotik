@@ -22,7 +22,7 @@ const (
 
 // Set during build with
 //     -ldflags "-X main.BUILD_TAG $(git describe --always --dirty)"
-var BUILD_TAG string
+var BUILD_TAG string = "?"
 
 // Configuration Struct
 type AppConfig struct {
