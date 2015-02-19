@@ -1,6 +1,11 @@
 package mikrotik
 
-import "time"
+import (
+	"time"
+
+	// Include package reference so that go get will pulldependencies
+	_ "github.com/alouca/gosnmp"
+)
 
 type Routerboarder interface {
 	Routerboard() Routerboard
