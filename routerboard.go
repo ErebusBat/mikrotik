@@ -1,6 +1,6 @@
-package mikrotik_util
+package mikrotik
 
-import "github.com/ErebusBat/mikrotik_util/snmp"
+import "github.com/ErebusBat/mikrotik/snmp"
 
 func NewSnmp(host, community string) snmp.SnmpRouterboard {
 	rb := &snmp.MikrotikSnmp{

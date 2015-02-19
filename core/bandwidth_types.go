@@ -5,7 +5,7 @@ import (
 	"log"
 	"time"
 
-	// . "github.com/ErebusBat/mikrotik_util/core"
+	// . "github.com/ErebusBat/mikrotik/core"
 )
 
 // Single point in time sample of the interface state

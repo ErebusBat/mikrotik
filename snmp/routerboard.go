@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/ErebusBat/mikrotik_util/core"
+	. "github.com/ErebusBat/mikrotik/core"
 	"github.com/alouca/gosnmp"
 )
 
