@@ -6,7 +6,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/ErebusBat/mikrotik/core"
+	"github.com/ErebusBat/mikrotik"
 	"github.com/ErebusBat/mikrotik/snmp"
 )
 
@@ -21,7 +21,7 @@ const (
 
 // Configuration Struct
 type AppConfig struct {
-	Routerboard    core.Routerboard
+	Routerboard    mikrotik.Routerboard
 	SampleInterval time.Duration
 	InterfaceName  string
 
@@ -135,7 +135,7 @@ func (cfg *AppConfig) mustGetSystemName() string {
 }
 
 // helper: returns interface or logs fatal error
-func (cfg *AppConfig) mustFindInterface() core.RbInterface {
+func (cfg *AppConfig) mustFindInterface() mikrotik.RbInterface {
 	// Call sysName first so we exit on that
 	sysName := cfg.mustGetSystemName()
 	iface, err := cfg.Routerboard.FindInterfaceByName(cfg.InterfaceName)

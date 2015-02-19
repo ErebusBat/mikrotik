@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/ErebusBat/mikrotik/core"
+	. "github.com/ErebusBat/mikrotik"
 )
 
 // Returns an array of the known interfaces

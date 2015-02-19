@@ -4,8 +4,9 @@ import (
 	"fmt"
 	"time"
 
-	. "github.com/ErebusBat/mikrotik/core"
 	"github.com/alouca/gosnmp"
+
+	. "github.com/ErebusBat/mikrotik"
 )
 
 type SnmpRouterboard interface {

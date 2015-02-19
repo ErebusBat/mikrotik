@@ -5,7 +5,7 @@ import (
 	"strconv"
 	"strings"
 
-	. "github.com/ErebusBat/mikrotik/core"
+	. "github.com/ErebusBat/mikrotik"
 )
 
 type MtInterface struct {

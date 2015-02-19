@@ -3,7 +3,7 @@ package snmp
 import (
 	"time"
 
-	. "github.com/ErebusBat/mikrotik/core"
+	. "github.com/ErebusBat/mikrotik"
 )
 
 // Samples bandwidth for the given duration and returns the delta.
