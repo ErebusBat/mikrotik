@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"log"
+	"runtime"
 	"time"
 
 	"github.com/ErebusBat/mikrotik"
@@ -18,6 +19,10 @@ const (
 	monitorBandwidth
 	printInterfaces
 )
+
+// Set during build with
+//     -ldflags "-X main.BUILD_TAG $(git describe --always --dirty)"
+var BUILD_TAG string
 
 // Configuration Struct
 type AppConfig struct {
@@ -34,6 +39,7 @@ type AppConfig struct {
 ////////////////////////////////////////////////////////////////////////////////
 
 func main() {
+	log.Printf("ErebusBat/mikrotik starting %s-%s-%s\n", runtime.GOOS, runtime.GOARCH, BUILD_TAG)
 	app := parseConfig()
 
 	switch app.action {
