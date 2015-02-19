@@ -6,8 +6,8 @@ import (
 	"log"
 	"time"
 
-	"github.com/ErebusBat/mikrotik"
 	"github.com/ErebusBat/mikrotik/core"
+	"github.com/ErebusBat/mikrotik/snmp"
 )
 
 // Custom type/consts to make our action routing code easier to read
@@ -107,7 +107,7 @@ func parseConfig() *AppConfig {
 	// Non operational flags
 	flag.BoolVar(&cfg.dumpInterfaces, "list", false, "Lists all known interfaces and exits")
 	flag.Parse()
-	cfg.Routerboard = mikrotik.NewSnmp(host, community)
+	cfg.Routerboard = snmp.Connect(host, community)
 
 	// Print RB banner (so it is on all output)
 	banner, err := cfg.Routerboard.GetSystemBanner()

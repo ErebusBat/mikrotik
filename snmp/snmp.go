@@ -17,6 +17,16 @@ var (
 	zeroValPdu = gosnmp.SnmpPDU{}
 )
 
+// Sets up a Snmp Routerboard Connections
+func Connect(host, community string) SnmpRouterboard {
+	rb := &MikrotikSnmp{
+		Host:      host,
+		Community: community,
+	}
+	rb.Initialize()
+	return rb
+}
+
 // Looks up the given OID value, casts it to a string and caches it.  Returns
 // cached value early if it exists
 func (rb *MikrotikSnmp) GetOidStringValCached(oid string) (val string, err error) {
