@@ -144,8 +144,8 @@ func (cfg *AppConfig) mustFindInterface() mikrotik.RbInterface {
 	}
 	log.Printf("%s Found %s Interface at %d\n",
 		sysName,
-		iface.Name,
-		iface.Index,
+		iface.Name(),
+		iface.Index(),
 	)
 	return iface
 }
