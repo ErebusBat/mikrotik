@@ -18,6 +18,7 @@ const (
 	unknown cliAction = iota
 	monitorBandwidth
 	printInterfaces
+	printVersion
 )
 
 // Set during build with
@@ -47,6 +48,8 @@ func main() {
 		app.actionMonitorBandwidth()
 	case printInterfaces:
 		app.actionPrintKnownInterfaces()
+	case printVersion:
+		// Version already
 	default:
 		log.Fatalf("Unknown action %#v?!?! ", app.action)
 	}
@@ -103,6 +106,9 @@ func parseConfig() *AppConfig {
 		host, community string
 	)
 	cfg := new(AppConfig)
+
+	var isVersion bool = false
+
 	cfg.action = monitorBandwidth
 	flag.StringVar(&host, "h", "127.0.0.7", "Mikrotik IP")
 	flag.StringVar(&community, "c", "public", "SNMP Community Name")
@@ -112,7 +118,14 @@ func parseConfig() *AppConfig {
 
 	// Non operational flags
 	flag.BoolVar(&cfg.dumpInterfaces, "list", false, "Lists all known interfaces and exits")
+	flag.BoolVar(&isVersion, "v", false, "Report version and exit")
 	flag.Parse()
+
+	if isVersion {
+		cfg.action = printVersion
+		return cfg
+	}
+
 	cfg.Routerboard = snmp.Connect(host, community)
 
 	// Print RB banner (so it is on all output)

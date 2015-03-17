@@ -1,7 +1,7 @@
-default: run
 
 ## Defines
 SRC     = cmd/bandwidth/*.go
+GOPKG   = github.com/ErebusBat/mikrotik/cmd/bandwidth
 EXEFILE = bandwidth
 
 ## Input and Output Variables
@@ -13,7 +13,8 @@ DATE_STAMP := $(shell date +%Y%m%d-%H%M%S)
 BUILDTAG   = $(DATE_STAMP)-$(GIT_VER)
 PLATARCH   = $(GOOS)-$(GOARCH)
 OUTDIR     = bin/$(BUILDTAG)/$(PLATARCH)
-GOMAKE     = GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o "$(OUTDIR)/$(EXEFILE)$(EXEEXT)" -ldflags "-X main.BUILD_TAG $(BUILDTAG)" $(SRC)
+GOLDFLAGS  = -ldflags '-X main.BUILD_TAG $(BUILDTAG)'
+GOMAKE     = GOOS=$(GOOS) GOARCH=$(GOARCH) go build -o "$(OUTDIR)/$(EXEFILE)$(EXEEXT)" $(GOLDFLAGS) $(SRC)
 ZIPFILE    = $(OUTDIR)/../$(PLATARCH)-$(BUILDTAG).zip
 ZIPCMD     = zip -j "$(ZIPFILE)" "$(OUTDIR)/$(EXEFILE)$(EXEEXT)"
 
@@ -21,16 +22,28 @@ ZIPCMD     = zip -j "$(ZIPFILE)" "$(OUTDIR)/$(EXEFILE)$(EXEEXT)"
 # Generic Targets
 ################################################################################
 
+default: build
 
-.PHONY: default mac
+# .PHONY: default mac
+# .PHONY: build
 
-.PHONY: build
 build: mac
 
 clean:
 	rm -dfr bin/*
+	go clean -i -x
+
+uninstall:
+	go clean -i -x $(GOPKG)
 
 all: mac win linux
+
+deps:
+	go get -u -f $(GOPKG)
+
+install: deps goinst
+goinst:
+	go install $(GOLDFLAGS) $(GOPKG)
 
 ################################################################################
 # Mac OSX Targets
